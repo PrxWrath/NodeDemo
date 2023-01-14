@@ -1,0 +1,16 @@
+{
+  "name": "nodedemo",
+  "version": "1.0.0",
+  "description": "Demo node project",
+  "main": "demoServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon demoServer.js",
+    "start-server": "node demoServer.js"
+  },
+  "author": "Pratyush Tiwari",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
