@@ -1,14 +1,10 @@
 const express = require('express');
 const router = express.Router()
-const path = require('path');
-const root = require('../utils/path');
+const contactController = require('../controllers/home');
+const notifController = require('../controllers/notif');
 
-router.get('/', (req,res,next)=>{
-    res.sendFile(path.join(root, 'views', 'contact.html'))
-});
+router.get('/', contactController.getContact);
   
-router.post('/success', (req,res,next)=>{
-    res.redirect("/success");
-  })
+router.post('/success', notifController.postSuccess);
 
 module.exports = router;
