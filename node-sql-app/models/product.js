@@ -1,21 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
-const p = path.join(
-  path.dirname(require.main.filename),
-  'data',
-  'products.json'
-);
-
-const getProductsFromFile = cb => {
-  fs.readFile(p, (err, fileContent) => {
-    if (err) {
-      cb([]);
-    } else {
-      cb(JSON.parse(fileContent));
-    }
-  });
-};
+const db = require('../util/database');
 
 module.exports = class Product {
   constructor(id, title, imageUrl, description, price) {
@@ -27,42 +10,29 @@ module.exports = class Product {
   }
 
   save() {
-    getProductsFromFile(products => {
-      if(this.id){
-        const existingIndex = products.findIndex(p => p.id===this.id);
-        const newProducts  = [...products];
-        newProducts[existingIndex] = this;
-        fs.writeFile(p, JSON.stringify(newProducts), err => {
-          console.log(err);
-        });
-      }else{
-        this.id = Math.random().toString();
-        products.push(this);
-        fs.writeFile(p, JSON.stringify(products), err => {
-          console.log(err);
-        });
-      }
-    });
+    return db.execute(
+      'INSERT INTO products (title, price, description, imageUrl) VALUES(?, ?, ?, ?)',
+      [this.title, this.price, this.description, this.imageUrl]
+    )
   }
 
   static deleteProductById(id) {
-    getProductsFromFile(products=>{
-      let deleted = products.filter(p=>p.id!==id);
-      fs.writeFile(p, JSON.stringify(deleted), err => {
-        console.log(err);
-      });
-    })
-  }
-  
-  static fetchAll(cb) {
-    getProductsFromFile(cb);
-    
+    return db.execute('DELETE FROM products WHERE id=?', [id]);
   }
 
-  static findById(id, cb) {
-    getProductsFromFile(products => {
-      const product = products.find(p => p.id === id);
-      cb(product);
-    });
+  updateExisting(){
+    return db.execute(
+        'UPDATE products SET title=?, price=?, description=?,  imageUrl=? WHERE id=?',
+        [this.title, this.price, this.description, this.imageUrl, this.id]
+      )
+      
+  }
+  
+  static fetchAll() {
+    return db.execute('SELECT * FROM products');
+  }
+
+  static findById(id) {
+    return db.execute(`SELECT * FROM products WHERE id=?`, [id]);
   }
 };

@@ -1,35 +1,44 @@
 const Product = require('../models/product');
 const cart = require('../models/cart');
 
-exports.getProducts = (req, res, next) => {
-  Product.fetchAll(products => {
-    res.render('shop/product-list', {
-      prods: products,
-      pageTitle: 'All Products',
-      path: '/products'
-    });
-  });
+exports.getProducts = async(req, res, next) => {
+    try{
+      const data = await Product.fetchAll()
+      res.render('shop/product-list', {
+        prods: data[0],
+        pageTitle: 'All Products',
+        path: '/products'
+      });
+    }catch(err){
+      console.log(err);
+    }
 };
 
-exports.getProduct = (req, res, next) => {
+exports.getProduct = async (req, res, next) => {
+  try{
   const prodId = req.params.productId;
-  Product.findById(prodId, product => {
+  const data = await Product.findById(prodId);
     res.render('shop/product-detail', {
-      product: product,
-      pageTitle: product.title,
+      product: data[0][0],
+      pageTitle: data[0].title,
       path: '/products'
     });
-  });
+  }catch(err){
+    console.log(err);
+  }
 };
 
-exports.getIndex = (req, res, next) => {
-  Product.fetchAll(products => {
+exports.getIndex = async(req, res, next) => {
+  try{
+    const data = await Product.fetchAll()
     res.render('shop/index', {
-      prods: products,
+      prods: data[0],
       pageTitle: 'Shop',
-      path: '/'
+      path: '/shop'
     });
-  });
+  }catch(err){
+    console.log(err);
+  }
 };
 
 exports.getCart = (req, res, next) => {
@@ -39,12 +48,16 @@ exports.getCart = (req, res, next) => {
   });
 };
 
-exports.postCart = (req,res,next)=>{
-  const prodId = req.body.productId;
-  Product.findById(prodId, product=>{
-    cart.addProduct(prodId, product.price)
-  })
-  res.redirect('/cart');
+exports.postCart = async (req,res,next)=>{
+  try{
+    const prodId = req.body.productId;
+    const data = await Product.findById(prodId);
+    cart.addProduct(prodId, data[0].price)
+    res.redirect('/cart');
+  }catch(err){
+    console.log(err)
+  }
+ 
 }
 
 exports.getOrders = (req, res, next) => {
