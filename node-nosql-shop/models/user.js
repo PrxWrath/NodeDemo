@@ -1,50 +1,16 @@
-const mongoDB = require('mongodb');
-const getDb = require('../util/database').getDb;
+const Sequelize = require('sequelize');
 
-class User{
-  constructor(name, email, cart, id){
-    this.name = name;
-    this.email = email;
-    this.cart = cart;
-    this._id = id;
-  }
+const sequelize = require('../util/database');
 
-  createUser(){
-    const db = getDb();
-    return db.collection('users').insertOne(this)
-  }
+const User = sequelize.define('user', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true
+  },
+  name: Sequelize.STRING,
+  email: Sequelize.STRING
+});
 
-  addToCart(product) {
-    const db = getDb();
-    let cartItems = this.cart.items
-    let updatedCart;
-    let qty=1;
-    if(cartItems){
-      const existing = cartItems.findIndex(item=>item.prodId === product);
-      if(existing<0){
-        cartItems = [...cartItems, {prodId:product, quantity:qty}]//create new product entry
-        updatedCart = {items: cartItems}       
-      }else{
-        qty = cartItems[existing].quantity+1 //increase quantity
-        cartItems[existing].quantity = qty
-        updatedCart = {items: cartItems}
-      }
-    }else{
-      updatedCart = {items: [{prodId: product, quantity:qty}]} //create new product entry
-    }
-    
-    return db.collection('users').updateOne({_id: new mongoDB.ObjectId(this._id)}, {$set: {cart: updatedCart}})
-  }
-
-  static findUserById(userId){
-    const db = getDb();
-    return db.collection('users').findOne({_id: new mongoDB.ObjectId(userId)})
-    .then(user=>{
-      return user
-    })
-    .catch(err=>{
-      console.log(err);
-    })
-  }
-}
 module.exports = User;
