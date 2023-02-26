@@ -1,6 +1,6 @@
 const mongoDB = require('mongodb');
 const getDb = require('../util/database').getDb;
-
+const Orders = require('./order');
 class User{
   constructor(name, email, cart, id){
     this.name = name;
@@ -63,6 +63,24 @@ class User{
     let updatedCart = {items: cartItems};
 
     return db.collection('users').updateOne({_id: new mongoDB.ObjectId(this._id)}, {$set: {cart: updatedCart}});
+  }
+
+  createOrder(){
+    const db = getDb();
+    let updatedCart = {items: []};
+    return this.getCart().then(products=>{
+      let order = new Orders(products, this._id);
+      order.save() //create order entry
+      .then(res=>{
+        return db.collection('users').updateOne({_id: new mongoDB.ObjectId(this._id)}, {$set: {cart: updatedCart}}); //empty the cart after placing order
+      })
+    })
+    
+  }
+
+  getOrders(){
+    const db = getDb();
+    return db.collection('orders').find({userId: this._id}).toArray()
   }
 
   static findUserById(userId){
