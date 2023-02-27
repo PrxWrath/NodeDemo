@@ -9,7 +9,20 @@ const userSchema = new Schema({
   email:{
     type: String,
     required: true
+  },
+  cart:{
+    items: [
+      {
+        prodId: {
+          type: Schema.Types.ObjectId,
+          ref: 'Product',
+          required: true
+
+        },
+        quantity: Number
+      }
+    ]
   }
 })
 
-module.exports = userSchema
+module.exports = mongoose.model('User',userSchema);
