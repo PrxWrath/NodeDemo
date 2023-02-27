@@ -1,10 +1,15 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema
 
-class Orders{
-  constructor(items, userId){
-    this.items = items;
-    this.userId = userId; 
+const orderSchema = new Schema({
+  items: [{
+    product: Object,
+    quantity: Number
+  }],
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref:'User'
   }
+})
 
-}
-
-module.exports = Orders;
+module.exports = mongoose.model('Order', orderSchema);
